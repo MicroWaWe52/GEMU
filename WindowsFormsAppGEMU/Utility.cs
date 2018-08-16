@@ -7,14 +7,14 @@ using System.IO;
 
 namespace ClassLibraryStream
 {
-    public class swrClass
+    public class Helper
     {
         /// <summary>
         /// Funzione per scrivere su un file una variabile
         /// </summary>
         /// <param name="f">File in cui scrivere</param>
         /// <param name="v">Variabile da scrivere</param>
-        public void WriteVar(string f,string v)
+        public void WriteVar(string f, string v)
         {
             StreamWriter sw = new StreamWriter(f);
             sw.WriteLine(v);
@@ -45,7 +45,7 @@ namespace ClassLibraryStream
             StreamReader sr = new StreamReader(f);
             string v = sr.ReadLine();
             sr.Close();
-            return v;            
+            return v;
         }
         /// <summary>
         /// Funzione per leggere un vettore contenuto in un file
@@ -55,7 +55,7 @@ namespace ClassLibraryStream
         public string[] ReadVet(string f)
         {
             StreamReader sr = new StreamReader(f);
-            int vettL=0;
+            int vettL = 0;
             do
             {
                 sr.ReadLine();
@@ -76,7 +76,7 @@ namespace ClassLibraryStream
         /// </summary>
         /// <param name="path"> Percorso da cui ricavare il file</param>
         /// <returns></returns>
-        public string Split(string path)
+        public static string GetFileName(string path)
         {
 
             int c = path.Length - path.Replace("/", "").Length;
@@ -85,7 +85,37 @@ namespace ClassLibraryStream
             path = forSplit[forSplit.Length - 1];
             return path;
         }
+        public static List<string> DirSearch(string sDir,int count=0, List<string> lstFilesFound = null)
+        {
+            if (lstFilesFound == null)
+            {
+                lstFilesFound = new List<string>();
+            }
+            try
+            {
+                foreach (var d in Directory.GetDirectories(sDir))
+                {
+                    lstFilesFound.AddRange(Directory.GetFiles(d, "*.exe"));
+                    if (lstFilesFound.Count != count)
+                    {
+                        count = lstFilesFound.Count;
+                        continue;
+                    }
 
+                    lstFilesFound.AddRange(DirSearch(d,count, lstFilesFound));
+                    lstFilesFound = lstFilesFound.Distinct().ToList();
+                    count = lstFilesFound.Count;
+                }
+            }
+            catch (Exception excpt)
+            {
+                Console.WriteLine(excpt.Message);
+            }
+
+
+
+            return lstFilesFound;
+        }
 
     }
 }
